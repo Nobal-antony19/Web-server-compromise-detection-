@@ -1,0 +1,37 @@
+
+title: Web Runtime Spawns Suspicious Child Process
+id: 3eecbf8b-3e9b-4e18-9e0c-45c5c3a11001
+status: experimental
+description: Detects web server runtimes launching command interpreters or script execution utilities, which may indicate post-exploitation activity.
+references:
+    - https://attack.mitre.org/techniques/T1059/
+author: Blue Team Learning Project
+date: 2026/10/27
+tags:
+    - attack.execution
+    - attack.t1059
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    web_runtime_parent:
+        ParentImage|endswith:
+            - '\node.exe'
+            - '\php.exe'
+            - '\php-cgi.exe'
+            - '\w3wp.exe'
+            - '\httpd.exe'
+            - '\nginx.exe'
+    suspicious_child:
+        Image|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+    condition: web_runtime_parent and suspicious_child
+falsepositives:
+    - Authorized application features that invoke system utilities
+    - Legitimate web application maintenance or deployment scripts
+level: high

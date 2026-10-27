@@ -1,0 +1,29 @@
+
+title: Server-Side Script Created in IIS Web Root
+id: 3eecbf8b-3e9b-4e18-9e0c-45c5c3a11003
+status: experimental
+description: Detects file events involving server-side script extensions under the default IIS web root, which may indicate unauthorized web-shell placement or application changes.
+references:
+    - https://attack.mitre.org/techniques/T1505/003/
+author: Blue Team Learning Project
+date: 2026/10/27
+tags:
+    - attack.persistence
+    - attack.t1505.003
+logsource:
+    category: file_event
+    product: windows
+detection:
+    webroot_path:
+        TargetFilename|contains: '\inetpub\wwwroot\'
+    script_extension:
+        TargetFilename|endswith:
+            - '.aspx'
+            - '.ashx'
+            - '.php'
+            - '.jsp'
+    condition: webroot_path and script_extension
+falsepositives:
+    - Approved application deployments
+    - Website updates and legitimate administrative changes
+level: medium

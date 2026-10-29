@@ -1,0 +1,41 @@
+
+title: Suspicious Windows Service Creation After Web Server Activity
+id: 7c9d2e14-6a83-4b51-9f20-3e8a6d71c405
+status: test
+description: >
+    Detects Windows service creation through sc.exe or PowerShell
+    when the command references a suspicious executable or writable
+    location. This may indicate persistence following a server compromise.
+    Correlate with web-server alerts and investigate the service binary.
+references:
+    - https://attack.mitre.org/techniques/T1543/003/
+    - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_service_creation.yml
+author: Nobal Antony
+date: 2026-10-29
+tags:
+    - attack.persistence
+    - attack.t1543.003
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_sc:
+        Image|endswith: '\sc.exe'
+        CommandLine|contains|all:
+            - 'create'
+            - 'binPath='
+    selection_powershell:
+        CommandLine|contains|all:
+            - 'New-Service'
+            - '-BinaryPathName'
+    suspicious_path:
+        CommandLine|contains:
+            - '\Users\Public\'
+            - '\AppData\Local\Temp\'
+            - '\Windows\Temp\'
+            - '\Downloads\'
+    condition: (selection_sc or selection_powershell) and suspicious_path
+falsepositives:
+    - Legitimate services installed from temporary or user-writable paths
+    - Administrative software deployment and maintenance
+level: high

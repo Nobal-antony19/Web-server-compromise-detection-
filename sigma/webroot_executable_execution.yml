@@ -1,0 +1,30 @@
+
+title: Executable Launched From Web Server Root
+id: 4b6e8f21-9d73-4a52-8c16-2f7a5e91b304
+status: test
+description: >
+    Detects a process executing from common web-server document roots.
+    This may indicate execution of a dropped backdoor or web-shell payload.
+    Review the process, parent process, command line, and deployment context.
+references:
+    - https://attack.mitre.org/techniques/T1505/003/
+    - https://sigmahq.io/
+author: Nobal Antony
+date: 2026-10-29
+tags:
+    - attack.persistence
+    - attack.t1505.003
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_web_root:
+        Image|contains:
+            - '\inetpub\wwwroot\'
+            - '\wwwroot\'
+            - '\htdocs\'
+    condition: selection_web_root
+falsepositives:
+    - Legitimate application binaries deployed in web directories
+    - Development tools or scripts intentionally run from web roots
+level: medium
